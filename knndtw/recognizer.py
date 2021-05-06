@@ -409,18 +409,22 @@ class ActivityRecognizer:
         num_iteration_P = 10
         accuracy_sum_all = 0
         for test_pid in self.processed_data.keys():
-            # if test_pid == '7' or test_pid == '6': # or test_pid == '8'
-            #     continue
+            if test_pid == '7' or test_pid == '6':# or test_pid == '6' or test_pid == '8'
+                continue
             count = 0
             accuracy_sum = 0
             print(f"test pid: {test_pid}")
-            for num_participant in range(1, len(self.processed_data.keys())):
+            for num_participant in range(2, len(self.processed_data.keys())):
                 print(f"P: {num_participant}")
-                train_pids = random.sample(self.processed_data.keys(), num_participant)
-                while test_pid in train_pids:
-                    train_pids = random.sample(self.processed_data.keys(), num_participant)
+                # train_pids = random.sample(self.processed_data.keys(), num_participant)
+                # while test_pid in train_pids:
+                #     train_pids = random.sample(self.processed_data.keys(), num_participant)
                 # print(f"training participants: {train_pids}")
                 for p in range(num_iteration_P):
+                    # train_pids = random.sample(self.processed_data.keys(), num_participant)
+                    # while test_pid in train_pids:
+                    #     train_pids = random.sample(self.processed_data.keys(), num_participant)
+                    # print(f"training participants: {train_pids}")
                     for num_train in range(1, divisor):
                         print(f"P: {num_participant}; T: {num_train}")
                         for j in range(num_iteration_T):
@@ -430,6 +434,19 @@ class ActivityRecognizer:
                             test_label = []
                             test_pid_data = self.processed_data[test_pid]
                             test_pid_label = self.processed_labels[test_pid]
+                            train_pids = random.sample(self.processed_data.keys(), num_participant)
+                            if num_participant == 1:
+                                if test_pid == '6':
+                                    train_pids = ['8']
+                                elif test_pid == '8':
+                                    train_pids = ['6']
+                                else:
+                                    while (test_pid in train_pids) or ('6' in train_pids) or ('8' in train_pids):
+                                        train_pids = random.sample(self.processed_data.keys(), num_participant)
+                            else:
+                                while test_pid in train_pids:
+                                    train_pids = random.sample(self.processed_data.keys(), num_participant)
+                            print(f"training participants: {train_pids}")
                             for k in range(10):
                                 # random
                                 activity_index = k * divisor
