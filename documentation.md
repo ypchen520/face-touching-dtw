@@ -1,5 +1,7 @@
-# Data
-# The knndtw Module
+## Raw Data
+
+## The knndtw Module
+
 * recognizer.py
   * class ActivityRecognizer
     * __init__
@@ -84,5 +86,6 @@
       * process
         * calculate the distance matrix
 
-# Entry Point
+## Entry Point
+
 * dtw.py
