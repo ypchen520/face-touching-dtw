@@ -42,7 +42,7 @@
     - ```acc_dir```: the raw data directory
     - ```re_dir```: the timer records directory
     - ```tar_dir```: the target directory for the preprocessed data
-  - the ```write_file()``` method
+  - ```write_file()```
     - input
       - ```divisor```: the number that will be used to divide a 3-minute stream into smaller segments, each representing a repetition of an activity
     - outputs 
@@ -67,13 +67,13 @@ $$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
 ### Implementation: The ```knndtw``` Module
 
 - This module defines the ```KnnDtw``` class
-  - fit
+  - [```fit()```](./knndtw/knndtw.py#L34)
     - Assign training data to ```self.x```
-      - ```x``` is a list of dictionaries with each containing a repitition of an activity: 
+      - ```self.x``` is a list of dictionaries with each containing a repitition of an activity: 
         - ```[{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]```
-      - {ACTIVITY N}: {'accelX': [], 'accelY': [], 'accelZ': []}
+      - Each dictionary in the ```self.x``` list consists of three time series as lists, each corresponding to the three axes: ```accelX```, ```accelY```, and ```accelZ```
+        -  ```{ACTIVITY N}: {'accelX': [...], 'accelY': [...], 'accelZ': [...]}```
     - Assign training labels to ```self.label```
-      - 
   * dtw_distance
     * input
       * ts_a, ts_b: array of shape [n_samples, n_timepoints]
@@ -109,6 +109,8 @@ $$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
 scenarios
 - user-dependent scenario
   - the classifier was trained and tested on a specific user (i.e., best-case accuracy) using cross-validation
+- user-independent scenario
+  - 
 
 ### Implementation: The ```recognizer``` Module
 
