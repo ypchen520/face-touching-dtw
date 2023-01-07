@@ -1,10 +1,84 @@
-## Raw Data Processing
+## Entry Point
 
-- 
+* ft_dtw.py
 
-## The knndtw Module
+## Data
 
-* recognizer.py
+- We implemented a monitoring [application](https://github.com/ypchen520/mini-ROAMM) that records accelerometer data at a rate of **30Hz** on the smartwatch using Tizen Studio
+- We recruited 10 participants, including 5 females and 5 males who ranged in age from 20 to 83 (M = 47.7, SD = 27.7)
+- we selected 10 everyday activities
+  - Non-face-touching
+    1. Using a mobile phone
+    2. Lying flat on the back
+    3. Computer tasks
+    4. Writing
+    5. Leisurely walk
+    6. Moving items from one location to another
+  - Face-touching
+    1. Repeated face touching
+    2. Eating and drinking
+    3. Simulated smoking
+    4. Adjusting eyeglasses
+- We accumulated ten streams of data for each of the ten participants, with each stream representing a 3-minute task consisting of consecutive repetitions of an activity. 
+  - Therefore, our dataset contains **100 time series that are each 3 minutes long**
+
+### Raw Data Processing
+
+- We applied data preprocessing techniques to each **3-minute time series** to (1) capture a stream of cyclical activity repetitions without the irregular noise at the start and end of the stream, and then (2) divide the stream into smaller segments, each representing a repetition of an activity, to be used for classification
+- data_extraction.py
+  * data preprocessing
+- noise removed, not divided
+- final: noise removed, data divided
+
+## The DTW-Based Classifier
+
+- DTW is a dynamic programming algorithm that is capable of measuring the similarity between two temporal sequences of different lengths. 
+  - Berndt and Clifford provide a more detailed explanation in their [work](https://www.aaai.org/Papers/Workshops/1994/WS-94-03/WS94-03-031.pdf)
+- In our experiment, we collected accelerometer data for **the three spatial dimensions**
+  - a sample represents a repetition of an activity consisting of three time series, each corresponding to the three axes: ```x```, ```y```, and ```z```
+- We calculate the matching between two samples A and B using the following equation: 
+
+$$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
+
+- In this equation, we used the open-source Python package [DTAIDistance](https://dtaidistance.readthedocs.io/en/latest/usage/dtw.html#dtw-distance-measure-between-two-time-series) to calculate an overall DTW distance between the two samples based on the three DTW distance values in the x, y, and z directions.
+- To classify a test sample, we first calculated the DTW distance between the test sample and all training templates individually, and then assigned to the test sample the label of the training template that resulted in the minimum DTW distance
+
+### Implementation: The ```knndtw``` Module
+
+* knndtw.py
+  * class KnnDtw
+    * fit
+      * assign training data to self.x
+        * x: [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
+        * {ACTIVITY N}: {'accelX': [], 'accelY': [], 'accelZ': []}
+      * assign training labels to self.label
+    * dtw_distance
+      * input
+        * ts_a, ts_b: array of shape [n_samples, n_timepoints]
+        * Two arrays containing n_samples of timeseries data whose DTW distance between each sample of A and B will be compared
+      * output
+        * Returns the DTW similarity distance between two **2-D time series numpy arrays**.
+    * dist_matrix
+      * input
+        * x: training data presented as a list dictionaries
+          * [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
+        * y: testing data presented as a list dictionaries
+          * [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
+    * predict
+      * input
+        * x: testing data presented as a list dictionaries
+          * [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
+      * process
+        * calculate the distance matrix
+
+## Analysis
+
+- We formulated the problem in two ways: **binary classification** and **multiclass classification**
+
+### Implementation: The ```recognizer``` Module
+
+- The analyses we conducted are implemented in the ```recognizer``` Python module
+- recognizer.py
   * class ActivityRecognizer
     * __init__
       * directories
@@ -60,34 +134,3 @@
         * print average_precision
         * print average_recall
         * print average_f1
-* data_extraction.py
-  * data preprocessing
-* knndtw.py
-  * class KnnDtw
-    * fit
-      * assign training data to self.x
-        * x: [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
-        * {ACTIVITY N}: {'accelX': [], 'accelY': [], 'accelZ': []}
-      * assign training labels to self.label
-    * dtw_distance
-      * input
-        * ts_a, ts_b: array of shape [n_samples, n_timepoints]
-        * Two arrays containing n_samples of timeseries data whose DTW distance between each sample of A and B will be compared
-      * output
-        * Returns the DTW similarity distance between two **2-D time series numpy arrays**.
-    * dist_matrix
-      * input
-        * x: training data presented as a list dictionaries
-          * [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
-        * y: testing data presented as a list dictionaries
-          * [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
-    * predict
-      * input
-        * x: testing data presented as a list dictionaries
-          * [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
-      * process
-        * calculate the distance matrix
-
-## Entry Point
-
-* dtw.py

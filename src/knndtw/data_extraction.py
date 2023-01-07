@@ -4,10 +4,13 @@ import datetime
 import os
 import re
 import matplotlib.pyplot as plt
-# [{"accelX":"-0.30149564146995544","accelY":"0.9595218896865845","accelZ":"9.90867805480957",
-# "gyroA":"-51.2400016784668","gyroB":"5.740000247955322","gyroC":"-133.55999755859375",
-# "timestamp":"2020-10-28T16:19:26.748-04:00","id":1113181},
-# {"accelX":"-0
+"""
+Raw data format:
+[{"accelX":"-0.30149564146995544","accelY":"0.9595218896865845","accelZ":"9.90867805480957",
+"gyroA":"-51.2400016784668","gyroB":"5.740000247955322","gyroC":"-133.55999755859375",
+"timestamp":"2020-10-28T16:19:26.748-04:00","id":1113181}, { ... }, ...
+"""
+
 
 # frequence of the accelerometer data
 ACC_FREQ = 30
@@ -19,9 +22,6 @@ class DataExtraction:
         self.record = []
         for f in os.listdir(re_dir):
             self.record.append(os.path.join(re_dir,f))
-            # dir = os.path.join(re_dir,f)
-            # print(dir.split("/")[-1].split(".")[0] + "_final.csv")
-        # print(self.record)
         '''accelerometer data'''
         acc_files = []
         self.raw_data_list = []
@@ -30,7 +30,6 @@ class DataExtraction:
                 acc_files.append(file)
         acc_files = sorted(acc_files)
         for file in acc_files:
-            # print(file)
             data = pd.read_json(os.path.join(acc_dir, file))
             self.raw_data_list.append(data)
         # Single dataframe
@@ -40,19 +39,13 @@ class DataExtraction:
         print(f'after dropping duplicates: {self.raw_data.shape}')
         self.raw_data.timestamp = self.raw_data.timestamp.astype(str)
         self.raw_data.timestamp = self.raw_data.timestamp.apply(lambda x: x.replace("T", " "))
-        # pd.to_datetime(self.raw_data.timestamp, format="%Y-%m-%d %H:%M:%S.%f-%z")
-        # self.raw_data.timestamp = pd.to_datetime(self.raw_data['timestamp'], utc=True) - pd.Timedelta("04:00:00")
         self.raw_data.timestamp = pd.to_datetime(self.raw_data['timestamp'])
         self.raw_data = self.raw_data.sort_values(by="timestamp")
         print(f'after sorting by timestamp: {self.raw_data.shape}')
-        # print(f"testing: {self.raw_data['timestamp'][0:2]}")
 
     def select_period(self, start, end, input):
         start = pd.to_datetime(start, format="%d/%m/%Y %H:%M:%S%z")
         end = pd.to_datetime(end, format="%d/%m/%Y %H:%M:%S%z")
-        # print(input['timestamp'])
-        # print((input['timestamp'] > start))
-        # print((input['timestamp'] > start) & (input['timestamp'] <= end))
         return input[(input['timestamp'] > start) & (input['timestamp'] <= end)].copy()
 
     def divide_data(self, data, divisor):
@@ -85,23 +78,18 @@ class DataExtraction:
                 s_time = t_rec.iloc[i, 0]
                 e_time = t_rec.iloc[i, 1]
                 n_data = self.select_period(s_time, e_time, self.raw_data)
-                # print(n_data)
                 n_data['ActivityNumber'] = t_rec.iloc[i, 2]
-                # print(t_rec.iloc[i, 2])
                 data_list.append(n_data)
             # data per participant, with noise
-            # print(data_list)
             p_data = pd.concat(data_list)
             # For each activity
             act_list = []
-            # print(p_data.ActivityNumber)
             acts = np.unique(p_data.ActivityNumber)
             data_list = []
             for act in acts:
                 tmp = p_data.query("ActivityNumber==%s" % str(act))
                 tmp = tmp.iloc[20 * ACC_FREQ: -5 * ACC_FREQ]  # Remove the first 20 seconds and last 5 seconds
                 data_list.append(tmp)
-                # print(tmp.shape)
                 retval = self.divide_data(tmp, divisor)
                 act_list.append(retval)
 
