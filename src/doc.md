@@ -47,9 +47,9 @@
       - ```divisor```: the number that will be used to divide a 3-minute stream into smaller segments, each representing a repetition of an activity
     - outputs 
       - **two files** for each activity (a total of 20 ```.csv``` files) in the "divisor_[DIVISOR]/" folder
-        - the file name is based on the type of the activity
-        - "[LABEL].csv": noise removed, not divided
-        - "[LABEL]_final.csv": noise removed, data divided
+        - the file name is based on the ID of the participant
+        - "[ID].csv": noise removed, not divided
+        - "[ID]_final.csv": noise removed, data divided
 
 ## The DTW-Based Classifier
 
@@ -108,15 +108,22 @@ $$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
 - We aimed at training and testing our DTW-based classifier with all possible combinations of training and test samples in both **user-dependent** and **user-independent**
 scenarios
 - user-dependent scenario
-  - the classifier was trained and tested on a specific user (i.e., best-case accuracy) using cross-validation
+  - the classifier was trained and tested on a specific user (i.e., best-case accuracy) using cross-validation.
+  - For each participant, for each activity type, $T$ samples were randomly selected as the training data and one additional sample was selected for testing. 
+    - We repeated this process 100 times for each value of $T$ (e.g., 1 to 11) and calculated the average of the results for each participant. 
+    - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 100(\text{iterations}) \times 11(\text{number of training samples}) = 1.1 \times 10^5$ classification tests were averaged into an overall classification accuracy
 - user-independent scenario
-  - 
+  - we also used cross-validation to examine how well a classifier can **generalize** to activities performed by users whose data are not included in the training set.
+  - We selected one participant’s data to use for testing and randomly selected $P$ other participants’ data to use for training. 
+  - For each activity type, $T$ samples were randomly selected from each training participant while one sample was selected from the testing participant. 
+    - We repeated the process 10 times for each $P$ (e.g., 1 to 9) and 10 times for each $T$ (e.g., 1 to 11). 
+    - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 10(\text{iterations for different numbers of training participants}) \times 9(\text{number of training participants}) \times 10(\text{iterations for different numbers of training samples}) \times 11(\text{number of training samples}) = 9.9 \times 10^5$ classification tests were averaged into an overall classification accuracy
 
 ### Implementation: The ```recognizer``` Module
 
 - The analyses we conducted are implemented in the ```recognizer``` Python module
 - This module defines the ```ActivityRecognizer``` class
-  * __init__
+  - [```__init__()```](./knndtw/recognizer.py#L17)
     * directories
       * preprocessed raw data points
       * labels (recordings)

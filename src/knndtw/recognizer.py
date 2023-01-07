@@ -9,7 +9,6 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 
 _BINARY_CLASSIFICATION = True
 _SEPARATED_BY_ACTIVITY = False
-# _DIVISOR = 12
 _INDEX_RANGE = [0]
 _VISUALIZE = True
 
@@ -30,70 +29,12 @@ class ActivityRecognizer:
         self.processed_data = {}
         self.processed_labels = {}
         self.extract_activity_processed(processed_data_dir)
-        # if raw_data_dir and raw_act_record_dir:
-        #     raw_data_stream = self.make_data_stream(raw_data_dir)
-            # raw_act_record_csv = self.make_act_record_csv(raw_act_record_dir)
-            # '''
-            # extract activities from raw data to a the raw data dictionary
-            # the dictionary key would be the participant ID
-            # the activities would be saved in a list
-            # '''
-            # self.extract_individual_activity(raw_act_record_dir, raw_data_stream, window_size, denoise_beginning, denoise_end)
-
-        # self.train_raw_files = sorted(os.listdir(train_data_dir))
-        # self.train_data = []
-        # self.train_label = []
-        # self.validation_data = []
-        # self.validation_label = []
-        # self.test_raw_files = sorted(os.listdir(test_data_dir))
-        # self.test_data = []
-        # self.test_label = []
-
-        # self.act_record = pd.read_csv(act_record_csv) # read activity record
-        # if train_data_dir and train_act_record_dir:
-        #     train_data_stream = self.make_data_stream(train_data_dir)
-        #     train_act_record_csv = self.make_act_record_csv(train_act_record_dir)
-        #
-        # if test_data_dir and test_act_record_dir:
-        #     test_data_stream = self.make_data_stream(test_data_dir)
-        #     test_act_record_csv = self.make_act_record_csv(test_act_record_dir)
-        # self.extract_activity("train", train_data_stream, train_act_record_csv)
-        # self.extract_activity("test", test_data_stream, test_act_record_csv)
 
     def select_period(self, start, end, input):
         start = pd.to_datetime(start, format="%d/%m/%Y %H:%M:%S%z")
         end = pd.to_datetime(end, format="%d/%m/%Y %H:%M:%S%z")
         # print(type(input))
         return input[(input['timestamp'] > start) & (input['timestamp'] <= end)].copy()
-
-    # def make_data_stream(self, data_dir):
-    #     raw_data_lists = []
-    #     raw_files = sorted(os.listdir(data_dir))
-    #     for file in raw_files:
-    #         try:
-    #             raw_data = pd.read_json(os.path.join(data_dir, file))
-    #             raw_data_lists.append(raw_data)
-    #         except UnicodeDecodeError:
-    #             continue
-    #     raw_data_stream = pd.concat(raw_data_lists)
-    #     return raw_data_stream
-
-    # def make_act_record_csv(self, act_record_dir):
-    #     is_first_file = True
-    #     act_record_files = sorted(os.listdir(act_record_dir))
-    #     w_addr = os.path.join(act_record_dir, "overall.csv")
-    #     w_file = open(w_addr, 'w')
-    #     for file in act_record_files:
-    #         f = open(os.path.join(act_record_dir, file), 'r')
-    #         for line in f.readlines():
-    #             if not is_first_file:
-    #                 if "Start" in line:
-    #                     continue
-    #             is_first_file = False
-    #             w_file.write(line)
-    #         f.close()
-    #     w_file.close()
-    #     return w_addr
 
     def extract_activity_processed(self, data_directory):
         for file in os.listdir(data_directory):
@@ -189,71 +130,6 @@ class ActivityRecognizer:
         data_list.append(data_dict)
         return data_list, label_list
 
-    # def select_inner_folds(self):
-    #     self.train_data
-    #     self.train_label
-    #     self.validation_data
-    #     self.validation_label
-    #     pass
-
-
-
-    # def extract_activity(self, data_type, data_stream, act_record_csv, window_size, denoise_beginning, denoise_end):
-    #     """
-    #     This function generates the following two outputs:
-    #     1. a list of activities
-    #     2. a list of corresponding labels
-    #     Each activity is recorded using a dictionary with keys accelX, accelY, and accelZ.
-    #     The activity index will match the label index.
-    #
-    #     For example,
-    #     Assume there are ACTIVITY 1, ACTIVITY 2, and ACTIVITY 3, which correspond to
-    #     the 4th, the 7th, and the 9th activities in the document, the data and label will look like:
-    #
-    #       train_data = [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
-    #       train_label = [4, 7, 9, ...]
-    #
-    #     """
-    #     # data_list = []
-    #     data_list = []
-    #     label_list = []
-    #     act_record = pd.read_csv(act_record_csv)
-    #     for i in range(act_record.shape[0]):
-    #         data_dict = {}
-    #         label = 0
-    #
-    #         # extract activity by cropping raw data
-    #         # based on the activity time record
-    #         # return type: pandas.core.series.Series
-    #         start_time = act_record.iloc[i, 0]
-    #         end_time = act_record.iloc[i, 1]
-    #         # print(f"activity {act_record.iloc[i, 2]}: start: {start_time}, end: {end_time}")
-    #         act = self.select_period(start_time, end_time, data_stream)
-    #
-    #         # extract accelerometer X, Y, and Z
-    #         # use to_numpy() to convert the type from pandas.core.series.Series to numpy.ndarray
-    #         data_dict.setdefault('accelX', []).extend(act['accelX'].to_numpy())
-    #         data_dict.setdefault('accelY', []).extend(act['accelY'].to_numpy())
-    #         data_dict.setdefault('accelZ', []).extend(act['accelZ'].to_numpy())
-    #         if not _BINARY_CLASSIFICATION:
-    #             label = act_record.iloc[i, 2]
-    #         else:
-    #             if act_record.iloc[i, 2] < 6:
-    #                 label = 0
-    #             elif 6 <= act_record.iloc[i, 2] <= 10:
-    #                 label = 1
-    #         if data_type == "train":
-    #             self.train_data.append(data_dict)
-    #             self.train_label.append(label)
-    #         elif data_type == "test":
-    #             self.test_data.append(data_dict)
-    #             self.test_label.append(label)
-    #         elif data_type == "raw":
-    #             data_list.append(data_dict)
-    #             label_list.append(label)
-    #
-    #     return data_list, label_list
-
     def extract_feature(self):
         pass
 
@@ -295,30 +171,15 @@ class ActivityRecognizer:
             except OSError:
                 print(f"Directory {file_path} can not be created")
             plt.savefig(os.path.join(file_path, filename))
-        # x = visualize_data[index-1]['accelX']
-        # y = visualize_data[index-1]['accelY']
-        # z = visualize_data[index-1]['accelZ']
-        # plot_index = [i for i in range(len(x))]
-        # # plot = plt.figure()
-        # plt.plot(plot_index, x, 'r-', label='X')
-        # plt.plot(plot_index, y, 'b-', label='Y')
-        # plt.plot(plot_index, z, 'g-', label='Z')
-        #
-        # plt.title('Accelerometer data for Activity #%d' % visualize_label[index - 1])
-        # plt.xlabel('index')
-        # plt.ylabel('Accelerometer Value')
-        # plt.legend()
-        # # plt.show()
-        # filename = activity_num + index + '.png'
-        #
-        # plt.savefig(os.path.join("results", data_type, pid, filename))
 
-    # def select_outer_folds(self):
-    #     self.train_data
-    #     self.train_label
-    #     self.test_data
-    #     self.test_label
-    #     return
+    def cross_validation(self):
+        pass
+
+    def select_inner_folds(self):
+        pass
+
+    def select_outer_folds(self):
+        pass
 
     def calculate_accuracy(self, ground_truth, predicted):
         summation = 0
@@ -354,78 +215,21 @@ class ActivityRecognizer:
     def calculate_F1(self, precision, recall):
         return 2 * precision * recall / (precision + recall)
 
-    def cross_validation(self):
-        accuracy_sum = 0
-        precision_sum = 0
-        recall_sum = 0
-        f1_sum = 0
-        for pid in self.processed_data.keys():
-            # select 9 participants as the training data
-            # select 1 participant as the testing data
-            test_pid = pid
-            print(f"test pid: {test_pid}")
-            train_data = []
-            train_label = []
-            for key, value in self.processed_data.items():
-                if key != test_pid:
-                    train_data.extend(value)
-            for key, value in self.processed_labels.items():
-                if key != test_pid:
-                    train_label.extend(value)
-            test_data = self.processed_data[test_pid]
-            test_label = self.processed_labels[test_pid] # ground truth
-            print(f"ground truth: {test_label}")
-            print(f"test sample size: {len(test_label)}")
-            m = KnnDtw(n_neighbors=1, max_warping_window=10)
-            # print(f"train label: {train_label}")
-            m.fit(train_data, train_label)
-            predicted_label, probability = m.predict(test_data) #predicted
-            print(f"predicted label: {predicted_label}")
-            print(f"test sample size sanity check: {len(predicted_label)}")
-            accuracy = self.calculate_accuracy(test_label, predicted_label)
-            # precision = self.calculate_precision(test_label, predicted_label)
-            # recall = self.calculate_recall(test_label, predicted_label)
-            # f1 = self.calculate_F1(precision, recall)
-            print(f"accuracy: {accuracy}")
-            # print(f"precision: {precision}")
-            # print(f"recall: {recall}")
-            # print(f"F1: {f1}")
-            accuracy_sum += accuracy
-            # precision_sum += precision
-            # recall_sum += recall
-            # f1_sum += f1
-        average_accuracy = accuracy_sum / len(self.processed_data.keys())
-        # average_precision = precision_sum / len(self.processed_data.keys())
-        # average_recall = recall_sum / len(self.processed_data.keys())
-        # average_f1 = f1_sum / len(self.processed_data.keys())
-        print(f"average accuracy: {average_accuracy}")
-        # print(f"average precision: {average_precision}")
-        # print(f"average recall: {average_recall}")
-        # print(f"average f1: {average_f1}")
-
     def user_independent_test(self, divisor=1):
         individual_result = []
         num_iteration_T = 10
         num_iteration_P = 10
         accuracy_sum_all = 0
         for test_pid in self.processed_data.keys():
-            if test_pid == '7' or test_pid == '6':# or test_pid == '6' or test_pid == '8'
-                continue
             count = 0
             accuracy_sum = 0
             print(f"test pid: {test_pid}")
             for num_participant in range(2, len(self.processed_data.keys())):
+                print(f"number of training participants P: {num_participant}")
                 print(f"P: {num_participant}")
-                # train_pids = random.sample(self.processed_data.keys(), num_participant)
-                # while test_pid in train_pids:
-                #     train_pids = random.sample(self.processed_data.keys(), num_participant)
-                # print(f"training participants: {train_pids}")
                 for p in range(num_iteration_P):
-                    # train_pids = random.sample(self.processed_data.keys(), num_participant)
-                    # while test_pid in train_pids:
-                    #     train_pids = random.sample(self.processed_data.keys(), num_participant)
-                    # print(f"training participants: {train_pids}")
                     for num_train in range(1, divisor):
+                        print(f"number of training samples per training participant T: {num_train}")
                         print(f"P: {num_participant}; T: {num_train}")
                         for j in range(num_iteration_T):
                             train_data = []
@@ -434,26 +238,22 @@ class ActivityRecognizer:
                             test_label = []
                             test_pid_data = self.processed_data[test_pid]
                             test_pid_label = self.processed_labels[test_pid]
+                            # select random PIDs as training participants
                             train_pids = random.sample(self.processed_data.keys(), num_participant)
-                            if num_participant == 1:
-                                if test_pid == '6':
-                                    train_pids = ['8']
-                                elif test_pid == '8':
-                                    train_pids = ['6']
-                                else:
-                                    while (test_pid in train_pids) or ('6' in train_pids) or ('8' in train_pids):
-                                        train_pids = random.sample(self.processed_data.keys(), num_participant)
-                            else:
-                                while test_pid in train_pids:
-                                    train_pids = random.sample(self.processed_data.keys(), num_participant)
-                            print(f"training participants: {train_pids}")
+                            # if the randomly selected PIDs contain the testing participant, we reselect
+                            while test_pid in train_pids:
+                                train_pids = random.sample(self.processed_data.keys(), num_participant)
+                            print(f"training participant PIDs: {train_pids}")
                             for k in range(10):
-                                # random
+                                """
+                                for each activity, randomly select indices to represent training and test samples
+                                """
+                                # For each participant, we have 120 samples containing 10 classes in the list ```test_pid_data```
+                                # activity #1: [0,divisor)
+                                # activity #2: [divisor*1, divisor*2) and so on
                                 activity_index = k * divisor
-                                # print(f"activity index: {activity_index}")
                                 # random_indices = random.sample(range(divisor), 1 + num_train)
                                 random_indices = random.sample(range(divisor), num_train)
-                                # print(f"random choice: {random_indices}")
                                 for i in range(len(random_indices)):
                                     if i == 0:
                                         test_data.append(test_pid_data[activity_index+random_indices[i]])
@@ -461,24 +261,18 @@ class ActivityRecognizer:
                                     for uid in train_pids:
                                         train_pid_data = self.processed_data[uid]
                                         train_pid_label = self.processed_labels[uid]
-                                        train_data.append(train_pid_data[activity_index + random_indices[i]])
-                                        train_label.append(train_pid_label[activity_index + random_indices[i]])
+                                        train_data.append(train_pid_data[activity_index+random_indices[i]])
+                                        train_label.append(train_pid_label[activity_index+random_indices[i]])
                                     # else:
                                     #     for uid in train_pids:
                                     #         train_pid_data = self.processed_data[uid]
                                     #         train_pid_label = self.processed_labels[uid]
                                     #         train_data.append(train_pid_data[activity_index+random_indices[i]])
                                     #         train_label.append(train_pid_label[activity_index+random_indices[i]])
-                                # print(f"ground truth: {test_label}")
-                                # print(f"test sample size: {len(test_label)}")
-                                # print(f"train label: {train_label}")
-                                # print(f"train sample size: {len(train_data)}")
                             m = KnnDtw(n_neighbors=1, max_warping_window=10)
                             m.fit(train_data, train_label)
                             predicted_label, probability = m.predict(test_data)
-                            # print(f"predicted label: {predicted_label}")
                             accuracy = self.calculate_accuracy(test_label, predicted_label)
-                            # print(f"accuracy: {accuracy}")
                             print(f"test pid: {test_pid}; P: {num_participant}; iteration: {p}; T: {num_train}; iteration: {j}; accuracy: {accuracy}")
                             count += 1
                             accuracy_sum += accuracy
@@ -490,7 +284,6 @@ class ActivityRecognizer:
             print(f"individual accuracies: {individual_result}")
             accuracy_sum_all += accuracy_individual
         average_accuracy_all = accuracy_sum_all / len(self.processed_data.keys())
-        # print(f"number of participants: {len(self.processed_data.keys())}")
         print(f"overall average accuracy: {average_accuracy_all}")
 
     def user_dependent_test(self, divisor=1):
@@ -514,36 +307,33 @@ class ActivityRecognizer:
                     current_pid_data = self.processed_data[test_pid]
                     current_pid_label = self.processed_labels[test_pid]
                     for k in range(10):
-                        # random
+                        """
+                        for each activity, randomly select indices to represent training and test samples
+                        """
+                        # For each participant, we have 120 samples containing 10 classes in the list ```current_pid_data```
+                        # activity #1: [0,divisor)
+                        # activity #2: [divisor*1, divisor*2) and so on
                         activity_index = k * divisor
-                        # print(f"activity index: {activity_index}")
+
+                        # select (num_train+1) random indices for (num_train) training samples and 1 test sample
                         random_indices = random.sample(range(divisor), 1 + num_train)
-                        # print(f"random choice: {random_indices}")
                         for i in range(len(random_indices)):
                             if i == 0:
+                                # always pick the first one of the randomly selected indices as the index for the test sample
                                 test_data.append(current_pid_data[activity_index+random_indices[i]])
                                 test_label.append(current_pid_label[activity_index+random_indices[i]])
                             else:
                                 train_data.append(current_pid_data[activity_index+random_indices[i]])
                                 train_label.append(current_pid_label[activity_index+random_indices[i]])
-                        # print(f"ground truth: {test_label}")
-                        # print(f"test sample size: {len(test_label)}")
-                        # print(f"train label: {train_label}")
-                        # print(f"train sample size: {len(train_data)}")
                     m = KnnDtw(n_neighbors=1, max_warping_window=10)
                     m.fit(train_data, train_label)
                     predicted_label, probability = m.predict(test_data)
-                    # print(f"predicted label: {predicted_label}")
-                    # print(f"test sample size sanity check: {len(predicted_label)}")
                     accuracy = self.calculate_accuracy(test_label, predicted_label)
                     # precision = self.calculate_precision(test_label, predicted_label)
                     # recall = self.calculate_recall(test_label, predicted_label)
                     # f1 = self.calculate_F1(precision, recall)
                     print(f"test pid: {test_pid}; T: {num_train}; iteration: {j}; accuracy: {accuracy}")
                     count += 1
-                    # print(f"precision: {precision}")
-                    # print(f"recall: {recall}")
-                    # print(f"F1: {f1}")
                     accuracy_sum += accuracy
             accuracy_individual = accuracy_sum / (num_iteration * (divisor-1))
             print(count)
