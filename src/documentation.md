@@ -67,11 +67,13 @@ $$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
 ### Implementation: The ```knndtw``` Module
 
 - This module defines the ```KnnDtw``` class
-  * fit
-    * assign training data to self.x
-      * x: [{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]
-      * {ACTIVITY N}: {'accelX': [], 'accelY': [], 'accelZ': []}
-    * assign training labels to self.label
+  - fit
+    - Assign training data to ```self.x```
+      - ```x``` is a list of dictionaries with each containing a repitition of an activity: 
+        - ```[{ACTIVITY 1}, {ACTIVITY 2}, {ACTIVITY 3}, ...]```
+      - {ACTIVITY N}: {'accelX': [], 'accelY': [], 'accelZ': []}
+    - Assign training labels to ```self.label```
+      - 
   * dtw_distance
     * input
       * ts_a, ts_b: array of shape [n_samples, n_timepoints]
@@ -93,7 +95,20 @@ $$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
 
 ## Analysis
 
-- We formulated the problem in two ways: **binary classification** and **multiclass classification**
+- We formulated the problem in two ways: **binary classification** and **multiclass classification** as shown below
+  ```Python
+  # classification objective
+  if not _BINARY_CLASSIFICATION:
+      self.labels = {1: 'MOBILE PHONE', 2: 'LYING FLAT', 3: 'COMPUTER TASKS', 4: 'WRITING', 5: 'LEISURE WALK',
+                    6: 'MOVING ITEMS', 7: 'REPEATED FACE TOUCHING', 8: 'EATING & DRINKING', 9: 'SIMULATED SMOKING',
+                    10:'ADJUSTING EYEGLASSES'}
+  else:
+      self.labels = {0: 'NON FACE TOUCHING', 1: 'FACE TOUCHING'}
+  ```
+- We aimed at training and testing our DTW-based classifier with all possible combinations of training and test samples in both **user-dependent** and **user-independent**
+scenarios
+- user-dependent scenario
+  - the classifier was trained and tested on a specific user (i.e., best-case accuracy) using cross-validation
 
 ### Implementation: The ```recognizer``` Module
 

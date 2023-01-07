@@ -7,7 +7,7 @@ import numpy as np
 from .knndtw import KnnDtw
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 
-isTwoLabels = True
+_BINARY_CLASSIFICATION = True
 _SEPARATED_BY_ACTIVITY = False
 # _DIVISOR = 12
 _INDEX_RANGE = [0]
@@ -19,7 +19,7 @@ class ActivityRecognizer:
                  raw_data_dir=None, raw_act_record_dir=None,
                  processed_data_dir=None, is_entire=False):
         # classification objective
-        if not isTwoLabels:
+        if not _BINARY_CLASSIFICATION:
             self.labels = {1: 'MOBILE PHONE', 2: 'LYING FLAT', 3: 'COMPUTER TASKS', 4: 'WRITING', 5: 'LEISURE WALK',
                            6: 'MOVING ITEMS', 7: 'REPEATED FACE TOUCHING', 8: 'EATING & DRINKING', 9: 'SIMULATED SMOKING',
                            10:'ADJUSTING EYEGLASSES'}
@@ -127,7 +127,7 @@ class ActivityRecognizer:
                     # label = processed_data.iloc[i, -2]
                 else:
                     print(f'logging activity: {prev_label}')
-                    if isTwoLabels:
+                    if _BINARY_CLASSIFICATION:
                         if prev_label <= 6:
                             prev_label = 0
                         elif 6 < prev_label <= 10:
@@ -142,7 +142,7 @@ class ActivityRecognizer:
                 prev_label = label
             # append the last sequence
             data_list.append(data_dict)
-            if isTwoLabels:
+            if _BINARY_CLASSIFICATION:
                 if prev_label <= 6:
                     prev_label = 0
                 elif 6 < prev_label <= 10:
@@ -165,7 +165,7 @@ class ActivityRecognizer:
                 # else:
                 #     print("index range exceeded")
             else:
-                if isTwoLabels:
+                if _BINARY_CLASSIFICATION:
                     if label <= 6:
                         label = 0
                     elif 6 < label <= 10:
@@ -180,7 +180,7 @@ class ActivityRecognizer:
             prev_index = curr_index
         # append the last sequence
         # TODO: to be tested
-        if isTwoLabels:
+        if _BINARY_CLASSIFICATION:
             if label <= 6:
                 label = 0
             elif 6 < label <= 10:
@@ -235,7 +235,7 @@ class ActivityRecognizer:
     #         data_dict.setdefault('accelX', []).extend(act['accelX'].to_numpy())
     #         data_dict.setdefault('accelY', []).extend(act['accelY'].to_numpy())
     #         data_dict.setdefault('accelZ', []).extend(act['accelZ'].to_numpy())
-    #         if not isTwoLabels:
+    #         if not _BINARY_CLASSIFICATION:
     #             label = act_record.iloc[i, 2]
     #         else:
     #             if act_record.iloc[i, 2] < 6:
