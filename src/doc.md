@@ -115,12 +115,12 @@ scenarios
 - User-independent scenario
   - We also used cross-validation to examine how well a classifier can **generalize** to activities performed by users whose data are not included in the training set.
   - We selected one participant’s data to use for testing and randomly selected $P$ other participants’ data to use for training.
-    - #training participant: P (1 to 9) 
-    - #test participant: 1
+    - #training participant: $P \text{(1 to 9)}$ 
+    - #test participant: $1$
   - For each activity type, $T$ samples were randomly selected from each training participant while one sample was selected from the testing participant. 
-    - #training samples per training participant: T (1 to 11)
+    - #training samples per training participant: $T \text{(1 to 11)}$
       - #total training samples for this classification test: $P \text{(1 to 9)} \times T \text{(1 to 11)}$
-    - #test sample from the testing participant: 1
+    - #test sample from the testing participant: $1$
   - We repeated the process 10 times for each $P$ (e.g., 1 to 9) and 10 times for each $T$ (e.g., 1 to 11). 
     - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 10(\text{iterations for P}) \times 9(\text{P}) \times 10(\text{iterations for T}) \times 11(\text{T}) = 9.9 \times 10^5$ classification tests were averaged into an overall classification accuracy
 
