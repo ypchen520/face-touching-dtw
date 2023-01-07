@@ -107,17 +107,22 @@ $$ DTW(A,B) = \sqrt{DTW(A_x,B_x)^2 + DTW(A_y,B_y)^2 + DTW(A_z,B_z)^2} $$
   ```
 - We aimed at training and testing our DTW-based classifier with all possible combinations of training and test samples in both **user-dependent** and **user-independent**
 scenarios
-- user-dependent scenario
-  - the classifier was trained and tested on a specific user (i.e., best-case accuracy) using cross-validation.
+- User-dependent scenario
+  - The classifier was trained and tested on a specific user (i.e., best-case accuracy) using cross-validation.
   - For each participant, for each activity type, $T$ samples were randomly selected as the training data and one additional sample was selected for testing. 
     - We repeated this process 100 times for each value of $T$ (e.g., 1 to 11) and calculated the average of the results for each participant. 
-    - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 100(\text{iterations}) \times 11(\text{number of training samples}) = 1.1 \times 10^5$ classification tests were averaged into an overall classification accuracy
-- user-independent scenario
-  - we also used cross-validation to examine how well a classifier can **generalize** to activities performed by users whose data are not included in the training set.
-  - We selected one participant’s data to use for testing and randomly selected $P$ other participants’ data to use for training. 
+    - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 100(\text{iterations for T}) \times 11(\text{T}) = 1.1 \times 10^5$ classification tests were averaged into an overall classification accuracy
+- User-independent scenario
+  - We also used cross-validation to examine how well a classifier can **generalize** to activities performed by users whose data are not included in the training set.
+  - We selected one participant’s data to use for testing and randomly selected $P$ other participants’ data to use for training.
+    - #training participant: P (1 to 9) 
+    - #test participant: 1
   - For each activity type, $T$ samples were randomly selected from each training participant while one sample was selected from the testing participant. 
-    - We repeated the process 10 times for each $P$ (e.g., 1 to 9) and 10 times for each $T$ (e.g., 1 to 11). 
-    - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 10(\text{iterations for different numbers of training participants}) \times 9(\text{number of training participants}) \times 10(\text{iterations for different numbers of training samples}) \times 11(\text{number of training samples}) = 9.9 \times 10^5$ classification tests were averaged into an overall classification accuracy
+    - #training samples per training participant: T (1 to 11)
+      - #total training samples for this classification test: $P \text{(1 to 9)} \times T \text{(1 to 11)}$
+    - #test sample from the testing participant: 1
+  - We repeated the process 10 times for each $P$ (e.g., 1 to 9) and 10 times for each $T$ (e.g., 1 to 11). 
+    - The results from the $10(\text{participants}) \times 10(\text{activities}) \times 10(\text{iterations for P}) \times 9(\text{P}) \times 10(\text{iterations for T}) \times 11(\text{T}) = 9.9 \times 10^5$ classification tests were averaged into an overall classification accuracy
 
 ### Implementation: The ```recognizer``` Module
 
